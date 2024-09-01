@@ -38,48 +38,13 @@ const registerCompany = async(req, res)=> {
     }
 }
 
-// const registerCompany = async(req,res)=> {
-//     try {
-//         const {companyName} = req.body
-//         if(!companyName) {
-//             return res.status(400).json({
-//                 message: "Company name is required.",
-//                 success: false
-//             })
-//         }
-
-//         let company = await Company.findOne({name: companyName})
-//         if(company) {
-//             return res.status(400).json({
-//                 message: "You cannot't register same Company.",
-//                 success: false
-//             })
-//         }
-
-//         await  Company.create({
-//             name: companyName,
-//             userId: req.user?._id
-//         })
-
-//         return res.status(200)
-//         .json({
-//             message: "Company registered successfully",
-//             success: true
-//         })
-
-
-
-//     } catch (error) {
-//         throw new ApiError(401, "Something went wront while registering company")
-//     }
-// }
 
 const getCompany = async(req, res) => {
     try {
-       const userId =  req.user?._id
-       const companies = await Company.findById(userId);
+       const userId =  req.user?._id;
+       const companies = await Company.find({userId});
        
-       if (!companies.length) {
+       if (companies.length === 0) {
         return res.status(404).json({
             message: "User doesn't have any registered companies.",
             success: false
@@ -117,8 +82,9 @@ const getComapanyById  = async (req, res) => {
 
 const updateCompanyInfo = async(req, res) => {
     try {
-        const {name, description, location, website} = req.body
-        const file = req.file;
+        const {name, description, location, website} = req.body;
+        
+        // const file = req.file;
 
         const companyId = req.params.id;
         let company = await Company.findById(companyId);
@@ -138,17 +104,14 @@ const updateCompanyInfo = async(req, res) => {
         
         await company.save({validateBeforeSave: false})
         
-        const updatedCompany = {
-            name: company.name,
-            description: company.description,
-            location: company.location,
-            website: company.website
-        }
-
+        // const updatedCompany = {
+        //     name, description, location, website
+        // }
+        // console.log("Updated company details", updatedCompany)
         return res.status(200)
         .json({
             message: "Company info updated Successfully",
-            company:  updatedCompany
+            company
         })
     } catch (error) {
         console.log(error)

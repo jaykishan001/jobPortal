@@ -104,7 +104,10 @@ const loginUser = async (req, res) => {
     }
     
     if(role !== user.role) {
-        throw new ApiError(403, "Access denied: Role mismatch");
+        return res.status(400).json({
+            message: "with this role user is not defined",
+            success: false
+        })
     }
 
     const {accessToken, refreshToken} = await generateAccessTokenRefreshToken(user._id)
@@ -227,7 +230,7 @@ const updateUserProfile = async (req, res) => {
         // if(email) user.email = email; //cannot update mail 
         if(phoneNumber) user.phoneNumber = phoneNumber
         if(bio) user.bio = bio
-        if(skills) user.skills = skills
+        if(skills) user.profile.skills = skills
 
         // Save the updated user
         await user.save({ validateBeforeSave: false });
@@ -238,7 +241,8 @@ const updateUserProfile = async (req, res) => {
             // email: user.email,
             phoneNumber: user.phoneNumber,
             role: user.role,
-            profile: user.profile
+            profile: user.profile,
+
         };
 
         return res.status(200).json({
