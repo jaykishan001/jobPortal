@@ -13,7 +13,7 @@ const jobSchema =  new mongoose.Schema({
         type: String,
     }],
     salary: {
-        type: Number,
+        type: String,
         required: true
     },
     location: {
@@ -25,17 +25,20 @@ const jobSchema =  new mongoose.Schema({
         required: true
     },
     experience: {
-        type: Number,
+        type: String,
     },
     position: {
-        type: Number,
+        type: String,
         required: true,
     },
+
+    //job created by which company
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
         required: true,
     },
+    //user who created this job
     createad_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

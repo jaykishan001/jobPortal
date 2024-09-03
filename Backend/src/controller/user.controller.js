@@ -5,7 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 const generateAccessTokenRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId);
-        console.log("User data", user);
+        // console.log("User data", user);
 
         if (!user) {
             throw new ApiError(404, "User doesn't exist");
@@ -144,15 +144,14 @@ const logoutUser = async (req, res)=> {
     })
     const options = {
         httpOnly: true,
-        secure: true,
-        
+        secure: true,    
     }
     return res
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json({
-        message: "User logged OUt successfully",
+        message: "User logged Out successfully",
         success: true
     })
 
@@ -160,56 +159,6 @@ const logoutUser = async (req, res)=> {
         throw new ApiError(400, "Something went wrong while logout user");
     }
 }
-
-// const updateUserProfile = async(req, res)=>{
-//     try {
-//         const userId = req.user._id;
-//         const {fullName, email, phoneNumber, bio, skills} = req.body;
-//         console.log("request body data:", req.body);
-//         // const file = req.file;
- 
-//         if([fullName, email, phoneNumber, bio, skills].some((filed)=> filed?.trim()=== "")){
-//             throw new ApiError(400, "All fileds are required");
-//         }
-        
-//         let user = await User.findById(userId);
-//         console.log("User data:", user)
-//         if(!user) {
-//             throw new ApiError(400, "User not found");
-//         }
-
-//         const skillsArray = skills.split(",");
-
-//         user.fullName = fullName
-//         user.email = email
-//         user.phoneNumber = phoneNumber
-//         user.bio = bio
-//         user.skills = skillsArray
-    
-// // resume update section
-
-//         await user.save({validateBeforeSave: false})
-        
-//         const updatedUser = {
-//             _id: user._id,
-//             fullName: user.fullName,
-//             email: user.email,
-//             phoneNumber: user.phoneNumber,
-//             role: user.role,
-//             profile: user.profile
-//         };
-
-//         return res.status(200)
-//         .json({
-//             message: "user profile updated Successfully",
-//             user: updatedUser,
-//             success: true
-//         })
-
-//     } catch (error) {
-//         throw new ApiError(401, "something went wrong while updating user profile")
-//     }
-// }
 
 const updateUserProfile = async (req, res) => {
     try {
@@ -233,7 +182,7 @@ const updateUserProfile = async (req, res) => {
         if(skills) user.profile.skills = skills
 
         // Save the updated user
-        await user.save({ validateBeforeSave: false });
+        await user.save();
 
         const updatedUser = {
             _id: user._id,

@@ -11,7 +11,7 @@ const registerCompany = async(req, res)=> {
                 success: false
             })
         }
-
+        //checking does company already exist
         const company =  await Company.findOne({name});
         if(company) {
             
@@ -37,7 +37,6 @@ const registerCompany = async(req, res)=> {
         
     }
 }
-
 
 const getCompany = async(req, res) => {
     try {
@@ -97,11 +96,10 @@ const updateCompanyInfo = async(req, res) => {
         }
 
         if(name) company.name = name;
-        if(description) company.description= description
+        if(description) company.description = description
         if(location) company.location = location
         if(website) company.website = website
 
-        
         await company.save({validateBeforeSave: false})
         
         // const updatedCompany = {
@@ -118,6 +116,5 @@ const updateCompanyInfo = async(req, res) => {
         throw new ApiError(402, "Something went wrong while updating company info")
     }
 }
-
 
 export {registerCompany, getComapanyById, getCompany, updateCompanyInfo};
