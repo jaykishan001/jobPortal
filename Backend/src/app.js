@@ -16,6 +16,9 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(express.static("public"))
 app.use(cookieParser())
+app.get("/", (req, res) => {
+    res.status(200).json({message: "server on all ok"})
+});
 
 app.use("/api/v1/company", companyRouter);
 app.use("/api/v1/job", jobRouter)

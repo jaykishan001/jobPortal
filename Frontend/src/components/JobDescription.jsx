@@ -1,20 +1,43 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { useParams } from "react-router-dom";
-import useGetSingleJob from "../hooks/useGetSingleJob";
 import { setSingleJob } from "../redux/jobSlice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { JOB_API_ENDPOINT } from "../utils/constant";
+import { toast } from "sonner";
+import { APPLICATION_API_ENDPOINT, JOB_API_ENDPOINT } from "../utils/constant";
 
 function JobDescription() {
-  const isApplied = false;
-  const param = useParams();
-  const jobId = param?.id;
+  
   const { singleJob } = useSelector((state) => state.job);
   const {user} = useSelector(state=> state.auth)
+  const isInitiallyApplied = singleJob?.applications?.some(singleUser => singleUser.applicant === user?._id) || false ;
+  const [isApplied, setIsApplied] = useState(isInitiallyApplied)
+
+  const param = useParams();
+  const jobId = param?.id;
   const dispatch = useDispatch();
+
+  const applyJobHandler = async() => {
+    try {
+      const res = await axios(`${APPLICATION_API_ENDPOINT}/apply/${jobId}`,{
+        withCredentials: true
+      })
+      console.log("respones ", res);
+
+      if(res.data.success) {
+        setIsApplied(true)
+        const updateSingleJob = {...singleJob, applications: [...singleJob.applications, {applicant: user?._id}]}
+        dispatch(setSingleJob(updateSingleJob));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  }
+
   useEffect(() => {
     const getsingleJob = async () => {
       try {
@@ -24,6 +47,7 @@ function JobDescription() {
         console.log(response);
         if (response.data.success) {
           dispatch(setSingleJob(response.data.job));
+          setIsApplied(res.data.job.applications.some(application => application.applicant === user?._id))
         }
       } catch (error) {
         console.log(error);
@@ -53,7 +77,8 @@ function JobDescription() {
           </div>
         </div>
 
-        <Button
+        <Button 
+          onClick = {isApplied ? null : applyJobHandler}
           disabled={isApplied}
           className={`rounded-lg ${
             isApplied
@@ -86,7 +111,7 @@ function JobDescription() {
         </h1>
         <h1 className="font-bold my-1">
           Experience:{" "} 
-          <span className="pl-4 font-normal text-gray-800">{singleJob.experience} Yr</span>
+          <span className="pl-4 font-normal text-gray-800">{singleJob?.experience} Yr</span>
         </h1>
         <h1 className="font-bold my-1">
           Salary: <span className="pl-4 font-normal text-gray-800">{singleJob?.salary} LPA</span>

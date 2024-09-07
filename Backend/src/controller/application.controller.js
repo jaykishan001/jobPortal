@@ -70,7 +70,7 @@ const getAppliedJob = async(req, res) => {
                 options: {sort: {createdAt: -1}}
             }
         })
-        if(!applications.length) {
+        if(!applications) {
             return res.status(400).json({
                 message: "No Application",
                 success:false

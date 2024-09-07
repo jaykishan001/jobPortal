@@ -65,10 +65,10 @@ const registerUser = async (req, res) => {
       });
     }
 
-    console.log(profilePhotoLocalPath);
+    // console.log(profilePhotoLocalPath);
 
     const profilePhotoUrl =  await uploadCloudinary(profilePhotoLocalPath)
-    console.log("profile photo cloudinary local path", profilePhotoUrl)
+    // console.log("profile photo cloudinary local path", profilePhotoUrl)
     const user = await User.create({
       fullName,
       email,
@@ -139,7 +139,7 @@ const loginUser = async (req, res) => {
     .cookie("refreshToken", refreshToken, options)
     .cookie("accessToken", accessToken, options)
     .json({
-      message: `Welcome back ${loggedInUser.fullName}`,
+      message: `Welcome ${loggedInUser.fullName}`,
       user: loggedInUser,
       accessToken,
       refreshToken,
@@ -180,7 +180,7 @@ const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user._id;
     const { fullName , phoneNumber, bio, skills } = req.body;
-    console.log(req.file)
+    // console.log(req.file)
     const resumeLocalpath = req.file?.path;
     
     if(!resumeLocalpath) {
@@ -188,15 +188,16 @@ const updateUserProfile = async (req, res) => {
     }
 
     let user = await User.findById(userId);
+    
+    if (!user) {
+      throw new ApiError(400, "User not found");
+    }
     const uploadedresume = await uploadCloudinary(resumeLocalpath)
-    console.log("Resume cloudinary link", uploadedresume.url)
+    // console.log("Resume cloudinary link", uploadedresume.url)
 
     let skillsArray;
     if (skills) {
       skillsArray = skills.split(",");
-    }
-    if (!user) {
-      throw new ApiError(400, "User not found");
     }
 
     if (fullName) user.fullName = fullName;
