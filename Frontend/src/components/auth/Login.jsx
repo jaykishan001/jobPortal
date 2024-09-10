@@ -22,7 +22,7 @@ function Login() {
     try {
       dispatch(setLoading(true));
       // console.log(data)
-      const res = await axios.post(`${USER_API_ENDPOINT}/login` , data,{
+      const res = await axios.post(`${USER_API_ENDPOINT}/login` , data, {
         headers: {
           "Content-Type": "application/json",   
         },

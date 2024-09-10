@@ -11,10 +11,11 @@ import { APPLICATION_API_ENDPOINT, JOB_API_ENDPOINT } from "../utils/constant";
 function JobDescription() {
   
   const { singleJob } = useSelector((state) => state.job);
-  const {user} = useSelector(state=> state.auth)
-  const isInitiallyApplied = singleJob?.applications?.some(singleUser => singleUser.applicant === user?._id) || false ;
+  const {user} = useSelector((state) => state.auth)
+  const isInitiallyApplied = singleJob?.applications?.some(singleUser => singleUser?.applicant == user?._id) || false ;
   const [isApplied, setIsApplied] = useState(isInitiallyApplied)
-
+  
+  console.log("User id", user?._id)
   const param = useParams();
   const jobId = param?.id;
   const dispatch = useDispatch();
@@ -24,12 +25,12 @@ function JobDescription() {
       const res = await axios(`${APPLICATION_API_ENDPOINT}/apply/${jobId}`,{
         withCredentials: true
       })
-      console.log("respones ", res);
+    console.log("respones ", res.data);
 
       if(res.data.success) {
-        setIsApplied(true)
+        setIsApplied(true) //update the local state
         const updateSingleJob = {...singleJob, applications: [...singleJob.applications, {applicant: user?._id}]}
-        dispatch(setSingleJob(updateSingleJob));
+        dispatch(setSingleJob(updateSingleJob)); // helps us to real time  ui update
         toast.success(res.data.message);
       }
     } catch (error) {
@@ -44,10 +45,12 @@ function JobDescription() {
         const response = await axios.get(`${JOB_API_ENDPOINT}/get/${jobId}`, {
           withCredentials: true,
         });
-        console.log(response);
+        // console.log(response);
         if (response.data.success) {
+          console.log(response)
           dispatch(setSingleJob(response.data.job));
-          setIsApplied(res.data.job.applications.some(application => application.applicant === user?._id))
+         { setIsApplied(response.data.job.applications.some(application => application?.applicant === user?._id))}
+          console.log(isApplied)
         }
       } catch (error) {
         console.log(error);
@@ -81,7 +84,7 @@ function JobDescription() {
           onClick = {isApplied ? null : applyJobHandler}
           disabled={isApplied}
           className={`rounded-lg ${
-            isApplied
+            isApplied 
               ? "bg-gray-600 cursor-not-allowed"
               : "bg-orange-500 hover:bg-orange-600"
           }`}

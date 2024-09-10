@@ -50,7 +50,7 @@ const postJob = async(req, res) => {
     }
 }
 
-const getAllJobs = async(req, res) => {
+const getAllJobs = async(req, res) => { 
     try {
         //filtering 
         const keyword = req.query.keyword || "";
@@ -95,7 +95,9 @@ const getJobById = async(req, res) => {
         const jobId = req.params.id;
         const job = await Job.findById(jobId).populate({
             path: "company"
-        }).sort({createdAt: -1})
+        }).populate({
+            path: "applications"
+        })
 
         if(!job) {
             return res.status(400).json({
@@ -124,7 +126,10 @@ const getJobById = async(req, res) => {
 const getAdminJobs = async(req, res) => {
     try {
         const adminId = req.user?._id;
-        const jobs = await Job.find({createad_by: adminId});
+        const jobs = await Job.find({createad_by: adminId}).populate({
+            path: 'company',
+            createadAt: -1
+        });
 
         if(!jobs){
             return res.status(400).json({

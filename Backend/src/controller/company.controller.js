@@ -1,19 +1,21 @@
 import {Company} from "../models/company.models.js"
 import { ApiError } from "../utils/ApiError.js"
+import { uploadCloudinary } from "../utils/Cloudinary.js";
 
 
 const registerCompany = async(req, res)=> {
     try {
-        const {name} = req.body;
-        if(!name) {
+        const { companyName } = req.body;
+        console.log("name of the company", companyName)
+        if(!companyName) {
             return res.status(400).json({
                 message:"fields are required",
                 success: false
             })
         }
         //checking does company already exist
-        const company =  await Company.findOne({name});
-        if(company) {
+        const checkCompany =  await Company.findOne({name: companyName});
+        if(checkCompany) {
             
         return res.status(400).json({
         message: "This company name already exists.",
@@ -21,14 +23,15 @@ const registerCompany = async(req, res)=> {
 });
         }
 
-        await Company.create({
-            name: name,
+        const company =  await Company.create({
+            name: companyName,
             userId: req.user._id
         })
 
         return res.status(200)
         .json({
             message: "Company registered successfully",
+            company,
             success: true
         })
        
@@ -42,6 +45,7 @@ const getCompany = async(req, res) => {
     try {
        const userId =  req.user?._id;
        const companies = await Company.find({userId});
+       console.log(companies)
        
        if (companies.length === 0) {
         return res.status(404).json({
@@ -80,13 +84,29 @@ const getComapanyById  = async (req, res) => {
 }
 
 const updateCompanyInfo = async(req, res) => {
+    
+    console.log("Comapny Id", req.params.id)
     try {
         const {name, description, location, website} = req.body;
         
-        // const file = req.file;
+        const logoLocalPath = req.file?.path;
+        console.log("logo company controller local path", logoLocalPath)
+        if(!logoLocalPath) {
+            return res.status(401).json({
+                message: "logo local path not exist"
+            })
+        }
 
         const companyId = req.params.id;
+        if (!companyId) {
+            return res.status(400).json({
+                message: "Company ID is required",
+                success: false
+            });
+        }
         let company = await Company.findById(companyId);
+        console.log("company data", company)
+
         if(!company) {
             return res.status(400)
             .json({
@@ -95,21 +115,21 @@ const updateCompanyInfo = async(req, res) => {
             })
         }
 
+        const logo = await uploadCloudinary(logoLocalPath)
+
         if(name) company.name = name;
         if(description) company.description = description
         if(location) company.location = location
         if(website) company.website = website
+        if(logo) company.logo = logo.url
 
         await company.save({validateBeforeSave: false})
         
-        // const updatedCompany = {
-        //     name, description, location, website
-        // }
-        // console.log("Updated company details", updatedCompany)
         return res.status(200)
         .json({
             message: "Company info updated Successfully",
-            company
+            company,
+            success: true
         })
     } catch (error) {
         console.log(error)

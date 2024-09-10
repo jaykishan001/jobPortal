@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Button } from './ui/button'
 import { Bookmark, Icon } from 'lucide-react'
 import { Avatar, AvatarImage } from './ui/avatar'
@@ -7,11 +7,20 @@ import { useNavigate } from 'react-router-dom'
 
 function Job({job}) {
     const navigate = useNavigate()
+   
+    const DaysAgo = (mongoDbTime) => {
+        const createdAt = new Date(mongoDbTime)
+        const currentTime = new Date();
+        const timeDifference = currentTime -createdAt
+        return Math.floor(timeDifference/(1000*24*60*60));
+    }
+
+
   return (
     <div className='p-5 rounded-md shadow-xl bg-white border border-gray-100'>
         <div className='flex items-center justify-between'>
         
-        <p className='text-sm text-gray-500'>{job?.createdAt}</p>
+        <p className='text-sm text-gray-500'>{DaysAgo(job?.createdAt)=== 0 ? "Today" : `${DaysAgo(job?.createdAt)} days ago`}</p>
         <Button variant= "outline" className='rounded-full' size="icon"><Bookmark/></Button>
         </div>
         <div className='flex items-center gap-2 my-2'>

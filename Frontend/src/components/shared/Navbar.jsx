@@ -11,24 +11,26 @@ import { logutAuthUser, setAuthUser } from "../../redux/authSlice";
 import { toast } from "sonner";
 function Navbar() {
   // const user = true;
-  const {user} = useSelector(state => state.auth)
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const logoutHandler = async() => {
-      try {
-        const response = await axios.get(`${USER_API_ENDPOINT}/logout`, {withCredentials: true})
-        if(response.data.success){
-          dispatch(setAuthUser(null)); 
-          navigate("/")      
-          toast.success(response.data.message) 
-        }
-      } catch (error) {
-        console.log("Something went wrong while logout user from navbar")
-        toast.error(error.response.data.message)
+  const logoutHandler = async () => {
+    try {
+      const response = await axios.get(`${USER_API_ENDPOINT}/logout`, {
+        withCredentials: true,
+      });
+      console.log(response);
+      if (response.data.success) {
+        dispatch(setAuthUser(null));
+        navigate("/");
+        toast.success(response.data.message);
       }
-  }
-
+    } catch (error) {
+      console.log("Something went wrong while logout user from navbar");
+      toast.error(error.response.data.message);
+    }
+  };
 
   return (
     <div className="bg-white">
@@ -40,25 +42,41 @@ function Navbar() {
         </div>
         <div className="flex items-center gap-12">
           <ul className="flex font-medium items-center gap-5">
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/jobs">Jobs</Link>
-            </li>
-            <li>
-              <Link to="/browse">Browse</Link>
-            </li>
+            {user && user.role === "recruiter" ? (
+              <>
+                <li>
+                  <Link to="/admin/companies">Company</Link>
+                </li>
+                <li>
+                  <Link to="admin/jobs">Jobs</Link>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link to="/">Home</Link>
+                </li>
+                <li>
+                  <Link to="/jobs">Jobs</Link>
+                </li>
+                <li>
+                  <Link to="/browse">Browse</Link>
+                </li>
+              </>
+            )}
           </ul>
 
           {user ? (
             <Popover>
               <PopoverTrigger asChild>
                 <Avatar className="cursor-pointer">
-                <AvatarImage
-                 src={user?.profile?.profilePhoto ?? "https://github.com/shadcn.png"}
-                 alt="@shadcn"
-                 />
+                  <AvatarImage
+                    src={
+                      user?.profile?.profilePhoto ??
+                      "https://github.com/shadcn.png"
+                    }
+                    alt="@shadcn"
+                  />
                 </Avatar>
               </PopoverTrigger>
               <PopoverContent className="w-80">
@@ -77,20 +95,26 @@ function Navbar() {
                   </div>
                 </div>
                 <div className="flex flex-col items-start my-3">
-                  <div className="flex w-fit items-center gap-4 cursor-pointer">
-                    <User2Icon />
-                    <Button variant="link"><Link to="/profile">View Profile</Link></Button>
-                  </div>
+                  {user && user.role === "applicant" && (
+                    <div className="flex w-fit items-center gap-4 cursor-pointer">
+                      <User2Icon />
+                      <Button variant="link">
+                        <Link to="/profile">View Profile</Link>
+                      </Button>
+                    </div>
+                  )}
                   <div className="flex w-fit items-center gap-4 cursor-pointer">
                     <LogOut />
-                    <Button onClick= {logoutHandler} variant="link">Logout</Button>
+                    <Button onClick={logoutHandler} variant="link">
+                      Logout
+                    </Button>
                   </div>
                 </div>
               </PopoverContent>
             </Popover>
           ) : (
             <div className="flex gap-3">
-              <Link to= "/login">
+              <Link to="/login">
                 <Button>Login</Button>
               </Link>
               <Link to="/signup">
