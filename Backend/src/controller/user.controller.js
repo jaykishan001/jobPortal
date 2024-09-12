@@ -128,11 +128,9 @@ const loginUser = async (req, res) => {
   const loggedInUser = await User.findById(user._id).select(
     " -password -refreshToken"
   );
-  const options = {
-    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Use 'None' for cross-site cookies in production
+const options = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
+    secure: true,
   };
   
 
@@ -152,6 +150,7 @@ const loginUser = async (req, res) => {
 const logoutUser = async (req, res) => {
   try {
     const userId = req.user._id;
+    console.log("USER ID ", userId)
     await User.findByIdAndUpdate(
       userId,
       {
@@ -182,7 +181,7 @@ const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user._id;
     const { fullName , phoneNumber, bio, skills } = req.body;
-    // console.log(req.file)
+    
     const resumeLocalpath = req.file?.path;
     
     if(!resumeLocalpath) {

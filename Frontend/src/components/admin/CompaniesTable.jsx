@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -13,11 +13,30 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Edit2, MoreHorizontal } from "lucide-react";
 import useGetAllCompanies from "../../hooks/useGetAllCompanies";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 function CompaniesTable() {
   useGetAllCompanies();
-  const { companies } = useSelector(state => state.company);
-  console.log("allCompanies  data", companies)
+  const { searchCompanyByText ,companies } = useSelector((state) => state.company);
+  const [filterCompany, setFilterCompany] = useState(companies)
+  const navigate = useNavigate()
+  useEffect(() => {
+    if(companies?.length) {
+      const filteredCompany = companies.filter((company)=> {
+        if(!searchCompanyByText) {
+          return true
+        }
+        return company?.name?.toLowerCase().includes(searchCompanyByText.toLowerCase())
+      }    
+      )
+      setFilterCompany(filteredCompany)
+    }
+  }, [searchCompanyByText,companies ])
+  
+  const handleClick = (companyId) => {
+    console.log(companyId)
+    navigate(`/admin/companies/${companyId}`)
+  }
 
   return (
     <div>
@@ -32,37 +51,31 @@ function CompaniesTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {companies?.length <= 0 ? (
-            <span>You haven't registered any company yet</span>
-          ) : (
-            <div className="flex">
-              {companies?.map((company) => {
-                return (
-                  <tr>
-                    <TableCell>
-                      <Avatar>
-                        <AvatarImage src={company?.logo} />
-                      </Avatar>
-                    </TableCell>
-                    <TableCell>{company?.name}</TableCell>
-                    <TableCell>{company?.createdAt.split("T")[0]}</TableCell>
-                    <TableCell className="text-right cursor-pointer">
-                      <Popover>
-                        <PopoverTrigger>
-                          <MoreHorizontal />
-                        </PopoverTrigger>
-                        <PopoverContent className="w-32">
-                          <div className="flex items-center gap-2 w-fit cursor-pointer">
-                            <Edit2 />
-                            <span>Edit</span>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
-                  </tr>
-                );
-              })}
-            </div>
+          {filterCompany?.map((company) => (
+            
+              <tr key={company._id}>
+                <TableCell>
+                  <Avatar>
+                    <AvatarImage src={company?.logo} />
+                  </Avatar>
+                </TableCell>
+                <TableCell>{company?.name}</TableCell>
+                <TableCell>{company?.createdAt.split("T")[0]}</TableCell>
+                <TableCell className="text-right cursor-pointer">
+                  <Popover>
+                    <PopoverTrigger>
+                      <MoreHorizontal />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-32">
+                      <div onClick={() => handleClick(company?._id)} className="flex items-center gap-2 w-fit cursor-pointer">
+                        <Edit2 />
+                        <span>Edit</span>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
+              </tr>     
+          )
           )}
         </TableBody>
       </Table>

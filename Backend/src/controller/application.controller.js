@@ -94,14 +94,12 @@ const getApplicant = async(req, res) => {
     try {
         const jobId = req.params.id;
         const job = await Job.findById(jobId).populate({
-            path: 'applications',
-            option: {
-                sort: {createdAt: -1},
-                populate: {
-                    path: 'applicant'
-                }
+            path:'applications',
+            options:{sort:{createdAt:-1}},
+            populate:{
+                path:'applicant'
             }
-        })
+        });
         console.log(job)
         if(!job) {
             return res.status(404).json({
@@ -146,7 +144,7 @@ const updateStatus = async(req, res) => {
 
         return res.status(200).json({
             message: "Status updated successfully",
-            success: false
+            success: true
         })
 
     } catch (error) {

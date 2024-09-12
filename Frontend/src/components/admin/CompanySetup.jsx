@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
-import { ArrowLeft, Loader2, Signal } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Label } from "../ui/label";
 import axios from "axios";
 import { COMPANY_API_ENDPOINT } from "../../utils/constant";
@@ -13,29 +13,31 @@ import useGetCompanyById from "../../hooks/useGetCompanyById";
 import { useSelector } from "react-redux";
 
 function CompanySetup() {
-
-    
-    const params = useParams();
-    const companyId = params?.id;
-    useGetCompanyById(companyId);
-
-    const {singleCompany} = useSelector(state => state.company)
-    
-    
+  const params = useParams();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit} = useForm({
-    defaultValues: {
-        name: singleCompany.name || "",
-        description: singleCompany.description || "",
-        website: singleCompany.website|| "",
-        location: singleCompany.location || "",
-        logo: singleCompany.logo || null,
-    },
-});
+  // Fetch the company data
+  useGetCompanyById(params.id);
+  const { singleCompany } = useSelector((state) => state.company);
 
+  // Use React Hook Form
+  const { register, handleSubmit, reset } = useForm();
+
+  // Reset form only when singleCompany data is available
+  useEffect(() => {
+    if (singleCompany) {
+      reset({
+        name: singleCompany?.name || "",
+        description: singleCompany?.description || "",
+        website: singleCompany?.website || "",
+        location: singleCompany?.location || "",
+        logo: singleCompany?.logo || null,
+      });
+    }
+  }, [singleCompany, reset]);
+
+  // Submit handler
   const submitHandler = async (data) => {
     const formData = new FormData();
     formData.append("name", data.name);
@@ -43,15 +45,14 @@ function CompanySetup() {
     formData.append("website", data.website);
     formData.append("location", data.location);
 
-    if (data.logo && data.logo[0]) {
+    if (data?.logo && data.logo[0]) {
       formData.append("logo", data.logo[0]);
     }
 
-    console.log(formData);
     try {
       setLoading(true);
       const res = await axios.put(
-        `${COMPANY_API_ENDPOINT}/update/${companyId}`,
+        `${COMPANY_API_ENDPOINT}/update/${params.id}`,
         formData,
         {
           headers: {
@@ -60,7 +61,6 @@ function CompanySetup() {
           withCredentials: true,
         }
       );
-      console.log("Response of companySetup", res)
       if (res.data.success) {
         toast.success(res.data.message);
         navigate("/admin/companies");
@@ -72,6 +72,15 @@ function CompanySetup() {
       setLoading(false);
     }
   };
+
+  // Conditionally render form only when company data is available
+  if (!singleCompany) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin mr-2 h-8 w-8" /> Loading company data...
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -117,8 +126,7 @@ function CompanySetup() {
           </div>
           {loading ? (
             <Button className="w-full my-4">
-              {" "}
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait{" "}
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
             </Button>
           ) : (
             <Button type="submit" className="w-full my-4">

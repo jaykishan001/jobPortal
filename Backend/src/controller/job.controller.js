@@ -4,7 +4,10 @@ const postJob = async(req, res) => {
     try {
         const {title, description, requirements, salary, location, jobType, experience,position, companyId}=req.body;
         const userId = req.user?._id;
+        console.log("User id of admin", userId)
+        console.log(title,description,requirements,salary,location ,jobType,experience,position,companyId);
         if([title,description,requirements,salary,location ,jobType,experience,position,companyId].some((field)=> field?.trim === "")){
+            
             return res.status(400).json({
                 message: "All field are required",
                 success: false
@@ -25,7 +28,7 @@ const postJob = async(req, res) => {
 
         })
 
-        console.log("created job data", job)
+        // console.log("created job data", job)
 
         if(!job) {
             return res.status(400).json({
@@ -36,6 +39,7 @@ const postJob = async(req, res) => {
 
         return res.status(201).json({
             message: "Job is successfully created",
+            job,
             success: false,
         })
 
@@ -127,9 +131,8 @@ const getAdminJobs = async(req, res) => {
     try {
         const adminId = req.user?._id;
         const jobs = await Job.find({createad_by: adminId}).populate({
-            path: 'company',
-            createadAt: -1
-        });
+            path: 'company'
+        })
 
         if(!jobs){
             return res.status(400).json({
@@ -144,7 +147,7 @@ const getAdminJobs = async(req, res) => {
          })
          
     } catch (error) {
-        
+        console.log(error)
     }
 }
 

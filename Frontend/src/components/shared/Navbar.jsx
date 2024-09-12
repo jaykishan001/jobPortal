@@ -36,7 +36,7 @@ function Navbar() {
     <div className="bg-white">
       <div className="flex items-center justify-between mx-auto max-w-7xl h-16">
         <div>
-          <h1 className="text-2xl font-bold">
+          <h1  onClick={() => navigate("/")} className="text-2xl font-bold cursor-pointer">
             Job<span className="text-[#F89A28]"> Dekho</span>
           </h1>
         </div>
@@ -48,7 +48,7 @@ function Navbar() {
                   <Link to="/admin/companies">Company</Link>
                 </li>
                 <li>
-                  <Link to="admin/jobs">Jobs</Link>
+                  <Link to="/admin/jobs">Jobs</Link>
                 </li>
               </>
             ) : (

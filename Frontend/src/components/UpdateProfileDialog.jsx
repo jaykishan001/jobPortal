@@ -31,21 +31,23 @@ function UpdateProfileDialog({ open, setOpen }) {
         fullName : user?.fullName || "",
         phoneNumber: user?.phoneNumber || "",
         bio: user?.profile?.bio || "",
-        skills: user?.profile.skills?.join(',') ||  "",
+        skills: user?.profile.skills?.join(','),
         file: user?.profile?.resume || ""
     }
   });
 
+  
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setValue("file", file)
   }
-
-
-
+  
+  
+  
   const submitForm =  async (data) => {
-      console.log(data);
-      const skillsArray = data?.skills.split(",").map(skill => skill.trim())
+    console.log(data);
+    const skillsArray = data?.skills.split(",").map(skill => skill.trim())
+    console.log(skills)
       
       const formData = new FormData();
       formData.append("fullName", data.fullName)
@@ -69,7 +71,7 @@ function UpdateProfileDialog({ open, setOpen }) {
         
         if(res.data.success) {
             dispatch(setAuthUser(res.data.user))
-            toast.success(res.data.message);
+            toast.success(res?.data?.message);
         }
         setOpen(false)
         // console.log(formData);
