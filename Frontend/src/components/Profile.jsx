@@ -17,6 +17,8 @@ function Profile() {
   const [open, setOpen] = useState(false)
   const isResume = true;
   const {user} = useSelector(state => state.auth)
+  console.log(user)
+  
   useGetAllAppliedJobs();
   return (
     <div>

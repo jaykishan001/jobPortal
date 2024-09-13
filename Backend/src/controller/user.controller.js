@@ -128,16 +128,10 @@ const loginUser = async (req, res) => {
   const loggedInUser = await User.findById(user._id).select(
     " -password -refreshToken"
   );
-// const options = {
-//     httpOnly: true,
-//     secure: true,
-//   };
 const options = {
-  expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
-  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Use 'None' for cross-site cookies in production
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
-};
+    httpOnly: true,
+    secure: true,
+  };
   
 
   return res
@@ -166,17 +160,10 @@ const logoutUser = async (req, res) => {
         new: true,
       }
     );
-    // const options = {
-    //   httpOnly: true,
-    //   secure: true,
-    // };
     const options = {
-      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Use 'None' for cross-site cookies in production
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
+      secure: true,
     };
-
     return res
       .status(200)
       .clearCookie("accessToken", options)
