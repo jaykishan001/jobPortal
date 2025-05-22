@@ -5,7 +5,6 @@ import { uploadCloudinary } from "../utils/Cloudinary.js";
 const generateAccessTokenRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    // console.log("User data", user);
 
     if (!user) {
       throw new ApiError(404, "User doesn't exist");
@@ -34,9 +33,7 @@ const generateAccessTokenRefreshToken = async (userId) => {
 const registerUser = async (req, res) => {
   try {
     const { fullName, email, password, phoneNumber, role } = req.body;
-    // console.log(fullName, email, password, phoneNumber, role);
     
-    //check all field are present
     if (!fullName || !email || !password || !phoneNumber || !role) {
       return res.status(400).json({
         message: "All field are required",
@@ -44,7 +41,6 @@ const registerUser = async (req, res) => {
       });
     }
 
-    //check does user already exist
     const existedUser = await User.findOne({
       $or: [{ email: email }, { phoneNumber: String(phoneNumber) }],
     });
@@ -65,10 +61,9 @@ const registerUser = async (req, res) => {
       });
     }
 
-    // console.log(profilePhotoLocalPath);
-
+  
     const profilePhotoUrl =  await uploadCloudinary(profilePhotoLocalPath)
-    // console.log("profile photo cloudinary local path", profilePhotoUrl)
+ 
     const user = await User.create({
       fullName,
       email,
@@ -97,8 +92,9 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   const { email, password, role } = req.body;
+
   if (!email || !password || !role) {
-    return res.status(400).json({
+      return res.status(400).json({
       message: "All field are required",
     });
   }
@@ -129,8 +125,10 @@ const loginUser = async (req, res) => {
     " -password -refreshToken"
   );
 const options = {
-    httpOnly: true,
-    secure: true,
+    expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
   };
   
 
@@ -150,7 +148,6 @@ const options = {
 const logoutUser = async (req, res) => {
   try {
     const userId = req.user._id;
-    console.log("USER ID ", userId)
     await User.findByIdAndUpdate(
       userId,
       {
@@ -194,8 +191,7 @@ const updateUserProfile = async (req, res) => {
       throw new ApiError(400, "User not found");
     }
     const uploadedresume = await uploadCloudinary(resumeLocalpath)
-    // console.log("Resume cloudinary link", uploadedresume.url)
-
+  
     let skillsArray;
     if (skills) {
       skillsArray = skills.split(",");
