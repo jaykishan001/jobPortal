@@ -6,7 +6,7 @@ import { roleCheck } from "../middlewares/role.middleware.js";
 const router = Router();
 
 router.route("/post").post(jwtVerify, roleCheck, postJob)
-router.route("/get").get(jwtVerify, getAllJobs)
+router.route("/get").get(getAllJobs)
 router.route("/get/:id").get(jwtVerify, getJobById)
 router.route("/getAdminJobs").get(jwtVerify, roleCheck, getAdminJobs)
 
